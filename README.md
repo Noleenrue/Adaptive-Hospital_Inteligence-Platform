@@ -1,72 +1,75 @@
 # Adaptive Hospital Intelligence Platform
 
-A research portfolio project demonstrating an end-to-end machine-learning application for estimating **30-day hospital readmission risk at hospital discharge**. It combines a patient-grouped XGBoost workflow and calibrated probabilities with a FastAPI service, PostgreSQL prediction history, a Streamlit dashboard, and raw-score SHAP explanations.
+**An end-to-end machine learning application for estimating 30-day hospital readmission risk at discharge.**
 
-> **Research prototype — not clinically validated.** This model is intended for demonstration and research, not patient care or operational clinical decisions. Its risk categories are not validated clinical decision rules. A Low category does not mean zero risk.
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![XGBoost](https://img.shields.io/badge/ML-XGBoost-orange)
+![FastAPI](https://img.shields.io/badge/API-FastAPI-009688)
+![Streamlit](https://img.shields.io/badge/Dashboard-Streamlit-FF4B4B)
+![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
+![Status](https://img.shields.io/badge/Status-Research%20Prototype-yellow)
 
-This is a professional software and machine-learning portfolio project, not a university assignment. It demonstrates engineering and analytical methods; it does not claim real-world clinical impact, external validation, or production deployment.
+## Project overview
 
-## What the project demonstrates
+Hospital readmissions are a significant challenge for healthcare systems. This project demonstrates how machine learning, explainable AI, API development, and database integration can be combined into an interactive clinical-risk research prototype.
 
-- Manifest-verified corrected-v3 model and calibrator artifacts.
-- Patient-disjoint training, calibration, and held-out test partitions.
-- Consistent handling of unmeasured HbA1c and glucose inputs.
-- Separate display and reporting of **raw model probability** and **calibrated probability**.
-- FastAPI request validation, health/model identity reporting, prediction, explanation, and history endpoints.
-- A Streamlit interface with Overview, Patient Risk Assessment, and Prediction History views.
-- PostgreSQL persistence for prediction submissions and read-only history retrieval.
-- Automated tests for model artifacts, evaluation, SHAP fidelity, risk policy, API clients, and dashboard behavior.
+The platform processes historical hospital encounter data, estimates the probability of readmission within 30 days, explains model predictions using SHAP, and presents results through an interactive Streamlit dashboard.
 
-## Verified corrected-v3 evaluation
+**Important:** This is a research and portfolio demonstration, not a clinically validated medical device. Predictions must not be used for patient care or clinical decisions.
 
-The figures below come from the held-out, patient-disjoint test partition documented in the [corrected-v3 evaluation report](reports/corrected_v3_model_evaluation_report.md). They are not estimates of future-hospital performance.
+## Key features
 
-| Measure | Result |
+- **Readmission risk prediction:** XGBoost model trained and evaluated using patient-disjoint data partitions.
+- **Probability calibration:** Platt scaling to improve probability reliability.
+- **Explainable AI:** SHAP contributions help users explore the factors influencing predictions.
+- **Interactive dashboard:** Streamlit interface for risk assessment and prediction history.
+- **REST API:** FastAPI endpoints for prediction, explanation, health checks, and history retrieval.
+- **Database integration:** PostgreSQL stores prediction submissions for later review.
+- **Data validation:** Preprocessing and input validation support consistent feature handling.
+- **Testing and evaluation:** Automated tests and documented held-out performance metrics.
+
+## Model performance
+
+Evaluation of the corrected-v3 model on a held-out, patient-disjoint test set:
+
+| Metric | Result |
 |---|---:|
-| Test encounters / patients | 20,075 / 14,088 |
-| Test readmission prevalence | 11.48% |
-| ROC-AUC | 0.6656 (95% patient-cluster bootstrap CI: 0.6528–0.6776) |
-| PR-AUC (Average Precision) | 0.2232 (0.2038–0.2439) |
-| Brier score | 0.0972 (0.0933–0.1004) |
-| Log loss | 0.3374 (0.3270–0.3462) |
-| Accuracy / precision / recall / F1 at 0.15 | 0.7628 / 0.2161 / 0.4056 / 0.2820 |
-| ECE, 10 equal-width bins | 0.0033 (0.0019–0.0084) |
+| Test encounters | 20,075 |
+| Unique test patients | 14,088 |
+| ROC-AUC | 0.6656 |
+| PR-AUC (Average Precision) | 0.2232 |
+| Brier score | 0.0972 |
+| Recall at threshold 0.15 | 0.4056 |
+| Precision at threshold 0.15 | 0.2161 |
 
-Threshold-based results use the existing 0.15 intervention threshold. Confidence intervals use 500 valid patient-cluster bootstrap resamples. The test set is from one random split of one historical dataset; these results do not establish temporal or external validity, clinical utility, or fairness.
+These figures describe performance on one historical test partition, not prospective clinical performance. See [the full evaluation report](reports/corrected_v3_model_evaluation_report.md) for confidence intervals, calibration details, and limitations.
 
-The served manifest identifies the model as `corrected-v3`, artifact `sha256:21438015f642839e`. The calibration step is Platt scaling: the UI/API distinguish its calibrated probability from the underlying XGBoost raw probability.
+## Technology stack
 
-## Architecture
+| Layer | Technologies |
+|---|---|
+| Programming | Python, pandas, NumPy |
+| Machine learning | XGBoost, scikit-learn |
+| Explainability | SHAP |
+| Backend | FastAPI, Pydantic |
+| Frontend | Streamlit |
+| Database | PostgreSQL, psycopg2 |
+| Testing | pytest |
+| Version control | Git, GitHub |
 
-```mermaid
-flowchart LR
-    D["UCI Diabetes 130-US Hospitals data"] --> P["Preprocessing and feature engineering"]
-    P --> T["Patient-grouped model workflow"]
-    T --> B["Corrected-v3 XGBoost pipeline + Platt calibrator"]
-    U["Streamlit dashboard"] -->|HTTP| A["FastAPI"]
-    A --> B
-    A -->|POST /predict persists| DB[("PostgreSQL predictions")]
-    A -->|GET /predictions| DB
-    A -->|POST /explain| S["Native XGBoost TreeSHAP"]
-    B --> S
-```
+## Explore the project
 
-See [the architecture and data flow](docs/architecture.md) and [technical case study](docs/technical_case_study.md) for implementation details.
+- [System architecture](docs/architecture.md)
+- [Technical case study](docs/technical_case_study.md)
+- [Model evaluation report](reports/corrected_v3_model_evaluation_report.md)
+- [Interview demonstration guide](docs/interview_demo.md)
+- [Portfolio presentation](docs/portfolio_presentation.md)
 
-## Technology
+## Dashboard preview
 
-Python, pandas, scikit-learn, XGBoost, SHAP, FastAPI, Pydantic, PostgreSQL, psycopg2, Streamlit, Requests, pytest, and Mermaid.
+Dashboard screenshots will be added using synthetic demonstration records. The application includes Overview, Patient Risk Assessment, and Prediction History views.
 
-## Screenshots
-
-No dashboard screenshots are currently included. The following are **placeholders, not existing images**; capture with synthetic data only before publishing:
-
-- `docs/assets/overview.png` — Overview with model version and artifact ID reported by `/health`.
-- `docs/assets/assessment.png` — Assessment showing calibrated probability as the primary result and raw model probability separately.
-- `docs/assets/explanation.png` — SHAP raw-score contributions and their non-causal limitation.
-- `docs/assets/history.png` — Prediction History page with synthetic/demo records only.
-
-Do not capture credentials, real patient data, or database connection details.
+---
 
 ## Local setup
 
