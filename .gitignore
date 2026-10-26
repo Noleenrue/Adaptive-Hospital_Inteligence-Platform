@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Local application secrets
+.streamlit/secrets.toml
+*.pem
+*.key
+*.p12
+*.pfx
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local/private data, including downloaded source datasets and generated
+# processed features. Obtain data separately; do not commit it.
+data/
+
+# Local model binaries and candidate/backup bundles. Keep the deployed
+# models/manifest.json and source code available; distribute binaries separately.
+models/*.pkl
+models/*.joblib
+models/**/*.pkl
+models/**/*.joblib
+models/**/*.onnx
+models/**/*.ubj
+models/candidates/
+models/backups/
+
+# Local database files and exports
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.dump
+*.backup
+
+# Logs
+*.log
+*.bak
+
+# Test and Python tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+
+# OS
+.DS_Store
+Thumbs.db

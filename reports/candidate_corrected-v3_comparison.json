@@ -1,0 +1,173 @@
+{
+  "test_encounters": 20075,
+  "test_patients": 14088,
+  "thresholds": {
+    "low_risk_threshold": 0.1,
+    "high_risk_threshold": 0.15,
+    "intervention_threshold": 0.15
+  },
+  "deployed": {
+    "model_version": "corrected-v2-candidate",
+    "artifact_id": "sha256:7a6559690e92db87",
+    "metrics": {
+      "roc_auc": 0.665515388850301,
+      "pr_auc": 0.22304564834317603,
+      "brier": 0.09714660048484802,
+      "log_loss": 0.3373936414718628,
+      "ece_10_equal_width": 0.004819216924170928,
+      "mean_predicted": 0.11328013241291046,
+      "observed_rate": 0.11481942714819428,
+      "tiers": {
+        "Low": {
+          "n": 10630,
+          "observed": 0.0715898400752587,
+          "mean_predicted": 0.06792115420103073
+        },
+        "Moderate": {
+          "n": 5115,
+          "observed": 0.11827956989247312,
+          "mean_predicted": 0.12241937965154648
+        },
+        "High": {
+          "n": 4330,
+          "observed": 0.21685912240184757,
+          "mean_predicted": 0.21383875608444214
+        }
+      }
+    },
+    "serving_skew": {
+      "encounters_with_unmeasured_lab": 20004,
+      "mean_abs_probability_diff": 0.004613716620951891,
+      "max_abs_probability_diff": 0.06067584455013275,
+      "share_changing_risk_tier": 0.055093399750934
+    },
+    "shap": {
+      "rows": 300,
+      "max_reconstruction_error": 1.1324882507324219e-06,
+      "lab_share_of_total_abs_shap": {
+        "hba1c_result": 0.00925870945808434,
+        "glucose_result": 0.0017976532979260141
+      }
+    }
+  },
+  "candidate": {
+    "model_version": "corrected-v3",
+    "artifact_id": "sha256:21438015f642839e",
+    "input_mapping": "lab-not-measured-v1",
+    "metrics": {
+      "roc_auc": 0.6656012778367109,
+      "pr_auc": 0.223198116901063,
+      "brier": 0.09715404361486435,
+      "log_loss": 0.3374374508857727,
+      "ece_10_equal_width": 0.00328470232106681,
+      "mean_predicted": 0.11325641721487045,
+      "observed_rate": 0.11481942714819428,
+      "tiers": {
+        "Low": {
+          "n": 10568,
+          "observed": 0.07040121120363362,
+          "mean_predicted": 0.06782384216785431
+        },
+        "Moderate": {
+          "n": 5181,
+          "observed": 0.12082609534838834,
+          "mean_predicted": 0.1223389059305191
+        },
+        "High": {
+          "n": 4326,
+          "observed": 0.21613499768839575,
+          "mean_predicted": 0.21336621046066284
+        }
+      }
+    },
+    "serving_skew": {
+      "encounters_with_unmeasured_lab": 20004,
+      "mean_abs_probability_diff": 0.0,
+      "max_abs_probability_diff": 0.0,
+      "share_changing_risk_tier": 0.0
+    },
+    "shap": {
+      "rows": 300,
+      "max_reconstruction_error": 1.9073486328125e-06,
+      "lab_share_of_total_abs_shap": {
+        "hba1c_result": 0.01675923216586584,
+        "glucose_result": 0.002673588858319018
+      }
+    }
+  },
+  "candidate_vs_deployed": {
+    "mean_abs_probability_diff": 0.0053082602098584175,
+    "max_abs_probability_diff": 0.13805122673511505,
+    "share_changing_risk_tier": 0.05927770859277708,
+    "tier_transition_matrix_v2_to_v3": {
+      "Low": {
+        "Low": {
+          "encounters": 10232,
+          "observed_readmission_rate": 0.06997654417513682
+        },
+        "Moderate": {
+          "encounters": 398,
+          "observed_readmission_rate": 0.11306532663316583
+        },
+        "High": {
+          "encounters": 0,
+          "observed_readmission_rate": null
+        }
+      },
+      "Moderate": {
+        "Low": {
+          "encounters": 336,
+          "observed_readmission_rate": 0.08333333333333333
+        },
+        "Moderate": {
+          "encounters": 4553,
+          "observed_readmission_rate": 0.12101910828025478
+        },
+        "High": {
+          "encounters": 226,
+          "observed_readmission_rate": 0.11504424778761062
+        }
+      },
+      "High": {
+        "Low": {
+          "encounters": 0,
+          "observed_readmission_rate": null
+        },
+        "Moderate": {
+          "encounters": 230,
+          "observed_readmission_rate": 0.13043478260869565
+        },
+        "High": {
+          "encounters": 4100,
+          "observed_readmission_rate": 0.22170731707317073
+        }
+      }
+    },
+    "threshold_metrics_at_0_15": {
+      "v2": {
+        "threshold": 0.15,
+        "tn": 14379,
+        "fp": 3391,
+        "fn": 1366,
+        "tp": 939,
+        "precision": 0.21685912240184757,
+        "recall": 0.40737527114967464,
+        "f1": 0.2830444611906556,
+        "flagged_rate": 0.2156911581569116
+      },
+      "v3": {
+        "threshold": 0.15,
+        "tn": 14379,
+        "fp": 3391,
+        "fn": 1370,
+        "tp": 935,
+        "precision": 0.21613499768839575,
+        "recall": 0.40563991323210413,
+        "f1": 0.28200874679535515,
+        "flagged_rate": 0.21549190535491905
+      }
+    }
+  },
+  "subgroup_comparison_csv": "candidate_corrected-v3_subgroups.csv",
+  "tier_transition_csv": "candidate_corrected-v3_tier_transitions.csv"
+}

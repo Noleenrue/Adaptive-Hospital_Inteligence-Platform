@@ -1,0 +1,14 @@
+{
+  "age_midpoint": 65, "gender": "Female", "race": "Caucasian",
+  "admission_type": "Emergency", "admission_source": "Emergency Room",
+  "discharge_disposition": "Discharged to home", "length_of_stay": 5,
+  "previous_inpatient_visits": 1, "previous_outpatient_visits": 2,
+  "previous_emergency_visits": 1, "diagnosis_count": 7,
+  "lab_procedure_count": 45, "procedure_count": 1, "medication_count": 15,
+  "hba1c_result": "None", "glucose_result": "None",
+  "insulin_status": "Steady", "diabetes_medication": "Yes",
+  "primary_diagnosis_category": "Circulatory",
+  "secondary_diagnosis_category": "Diabetes",
+  "tertiary_diagnosis_category": "Other",
+  "total_previous_visits": 4, "has_previous_inpatient_visit": 1
+}

@@ -1,0 +1,121 @@
+{
+  "identity": {
+    "model_version": "corrected-v3",
+    "artifact_id": "sha256:21438015f642839e",
+    "model_sha256": "d94e71073ec3c291df86826b7115b7a283317a75b293ab4d22f07b6c328b64f4",
+    "calibrator_sha256": "b7e80676d4967d9d9d6b73f4a160b8b1862029aa51d7a9a485a3af2325491faf",
+    "manifest_sha256": "07094ef7a468850adc0511704b78b2624a76f9a96aef8eccbb6ad359df038e3e",
+    "status": "promoted"
+  },
+  "data": {
+    "path": "data\\processed\\clinical_features.csv",
+    "sha256": "66cd14a7d3d634e6182f63e78fd307bbbe9264c997de73439caf283b757cd28a",
+    "raw_encounters": 101766,
+    "expired_excluded": 1652,
+    "eligible_encounters": 100114,
+    "eligible_patients": 70439,
+    "filter_rule": "exclude discharge_disposition containing \"Expired\" case-insensitively",
+    "split_method": "GroupShuffleSplit on patient_id, test 20% then calibration 20% of development",
+    "random_state": 42
+  },
+  "test_encounters": 20075,
+  "test_patients": 14088,
+  "class_distribution": {
+    "not_readmitted": 17770,
+    "readmitted": 2305,
+    "readmission_rate": 0.11481942714819428,
+    "mean_predicted_probability": 0.11325641721487045
+  },
+  "threshold_metrics": {
+    "threshold": 0.15,
+    "tn": 14379,
+    "fp": 3391,
+    "fn": 1370,
+    "tp": 935,
+    "accuracy": 0.7628393524283935,
+    "precision": 0.21613499768839575,
+    "recall": 0.40563991323210413,
+    "f1": 0.28200874679535515
+  },
+  "roc_auc": 0.6656012778367109,
+  "pr_auc": 0.223198116901063,
+  "brier": 0.09715404361486435,
+  "log_loss": 0.3374374508857727,
+  "ece_10_equal_width": 0.00328470232106681,
+  "calibration_slope": 1.0088907480239868,
+  "calibration_intercept": 0.033315934240818024,
+  "bootstrap": {
+    "method": "patient-level cluster bootstrap, sampled with replacement",
+    "requested_resamples": 500,
+    "valid_resamples": 500,
+    "single_class_resamples_skipped": 0,
+    "seed": 42,
+    "confidence_level": 0.95,
+    "intervals": {
+      "roc_auc": {
+        "lower_95": 0.6527977625692757,
+        "upper_95": 0.6776347895507032,
+        "valid_resamples": 500
+      },
+      "pr_auc": {
+        "lower_95": 0.20380238659918332,
+        "upper_95": 0.2438787864014048,
+        "valid_resamples": 500
+      },
+      "accuracy": {
+        "lower_95": 0.756079307758006,
+        "upper_95": 0.7700857137374154,
+        "valid_resamples": 500
+      },
+      "precision": {
+        "lower_95": 0.20088170539841502,
+        "upper_95": 0.22995701640643756,
+        "valid_resamples": 500
+      },
+      "recall": {
+        "lower_95": 0.38212303597622754,
+        "upper_95": 0.4280102322894271,
+        "valid_resamples": 500
+      },
+      "f1": {
+        "lower_95": 0.26444190367642484,
+        "upper_95": 0.29764501219114237,
+        "valid_resamples": 500
+      },
+      "brier": {
+        "lower_95": 0.09331518318504095,
+        "upper_95": 0.10042249001562595,
+        "valid_resamples": 500
+      },
+      "log_loss": {
+        "lower_95": 0.32701943069696426,
+        "upper_95": 0.3461873158812523,
+        "valid_resamples": 500
+      },
+      "ece_10_equal_width": {
+        "lower_95": 0.0019338548769353243,
+        "upper_95": 0.008402767558206205,
+        "valid_resamples": 500
+      },
+      "slope": {
+        "lower_95": 0.934587374329567,
+        "upper_95": 1.0833491653203964,
+        "valid_resamples": 500
+      },
+      "intercept": {
+        "lower_95": -0.1287407662719488,
+        "upper_95": 0.18797130621969693,
+        "valid_resamples": 500
+      }
+    }
+  },
+  "calibration_analysis": {
+    "method": "diagnostic logistic regression of outcome on logit of held-out calibrated probabilities",
+    "calibrator_refit": false,
+    "reliability_diagram": "corrected_v3_reliability_diagram.png",
+    "equal_width_bins": "corrected_v3_calibration_bins.csv",
+    "quantile_bins": "corrected_v3_calibration_deciles.csv"
+  },
+  "prediction_time": "at hospital discharge",
+  "clinical_validation_status": "not clinically validated"
+}

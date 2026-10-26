@@ -1,0 +1,10 @@
+v2_tier,v3_tier,encounters,observed_readmission_rate
+Low,Low,10232,0.06997654417513682
+Low,Moderate,398,0.11306532663316583
+Low,High,0,
+Moderate,Low,336,0.08333333333333333
+Moderate,Moderate,4553,0.12101910828025478
+Moderate,High,226,0.11504424778761062
+High,Low,0,
+High,Moderate,230,0.13043478260869565
+High,High,4100,0.22170731707317073

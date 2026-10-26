@@ -1,0 +1,20 @@
+# Direct application and model dependencies, pinned to the verified local
+# Python 3.11 environment. Keep this list focused on packages used by the
+# API, dashboard, inference, explanations, evaluation, and tests.
+fastapi==0.143.0
+httpx==0.28.1
+joblib==1.6.0
+matplotlib==3.11.2
+numpy==2.4.6
+pandas==3.0.5
+plotly==7.1.0
+psycopg2-binary==2.9.13
+pydantic==2.14.0
+pytest==9.1.1
+python-dotenv==1.2.4
+requests==2.34.2
+scikit-learn==1.9.1
+shap==0.51.0
+streamlit==1.65.0
+uvicorn==0.54.0
+xgboost==3.2.0

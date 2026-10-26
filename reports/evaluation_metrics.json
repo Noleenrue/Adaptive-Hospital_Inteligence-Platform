@@ -1,0 +1,161 @@
+{
+  "identity": {
+    "model_version": "corrected-v2-candidate",
+    "artifact_id": "sha256:7a6559690e92db87",
+    "model_file": "models\\readmission_xgb_pipeline.joblib",
+    "model_sha256": "280c16b59a4a3d5469f3705160709e37df774e5476e4fc11c3c36457d158a784",
+    "calibrator_file": "models\\platt_calibrator.joblib",
+    "calibrator_sha256": "df0a0e4516d24748c4ba2cffc8caba003c111fd8f1fa5b30ace60c0bffe7eb28",
+    "manifest_sha256": "66d4b5263a31a95aaf3ffd99d0e82938ee9053749b9d473b92d4ebf6bc7ba8f9",
+    "manifest_created_utc": "2026-10-19T12:05:42.836686+00:00",
+    "pipeline_steps": [
+      "preprocessor",
+      "classifier"
+    ],
+    "numeric_columns": 11,
+    "categorical_columns": 12,
+    "transformed_features": 136,
+    "classifier": {
+      "objective": "binary:logistic",
+      "colsample_bytree": 0.8,
+      "learning_rate": 0.05,
+      "max_depth": 3,
+      "n_estimators": 400,
+      "random_state": 42,
+      "scale_pos_weight": 7.863340263340263,
+      "subsample": 0.8
+    },
+    "calibrator": {
+      "method": "Platt (LogisticRegression)",
+      "coef": 4.385865688323975,
+      "intercept": -4.205832004547119
+    },
+    "risk_policy": {
+      "low": 0.1,
+      "high": 0.15,
+      "intervention": 0.15
+    },
+    "data_file": "data\\processed\\clinical_features.csv",
+    "data_sha256": "66cd14a7d3d634e6182f63e78fd307bbbe9264c997de73439caf283b757cd28a",
+    "environment": {
+      "python": "3.11.3",
+      "scikit_learn": "1.9.1",
+      "xgboost": "3.2.0",
+      "pandas": "3.0.5",
+      "numpy": "2.4.6"
+    }
+  },
+  "integrity_checks": {
+    "data file hash equals manifest source hash": true,
+    "eligible encounters equal manifest": true,
+    "excluded encounters equal manifest": true,
+    "split sizes equal manifest": true,
+    "patient sets are disjoint (train/cal/test)": true,
+    "no encounter appears in two partitions": true,
+    "no Expired discharge in any partition": true,
+    "model feature order equals manifest": true,
+    "risk thresholds equal manifest policy": true,
+    "recomputed roc_auc equals manifest": true,
+    "recomputed pr_auc equals manifest": true,
+    "recomputed brier equals manifest": true,
+    "recomputed log_loss equals manifest": true,
+    "SHAP explainer uses the deployed classifier object": true,
+    "SHAP explainer uses the deployed preprocessor object": true,
+    "native SHAP contributions sum to the deployed raw margin (max error < 1e-3)": true,
+    "deployed raw margin maps to deployed raw probability": true,
+    "explainer contributions reconstruct the deployed margin (200 rows, < 1e-3)": true,
+    "explainer contributions equal batch native SHAP (200 rows, < 1e-4)": true
+  },
+  "test_calibrated": {
+    "roc_auc": 0.665515388850301,
+    "pr_auc": 0.22304564834317603,
+    "brier": 0.09714660048484802,
+    "log_loss": 0.3373936414718628,
+    "ece": 0.004819216924170928
+  },
+  "test_raw": {
+    "roc_auc": 0.6655153766432251,
+    "pr_auc": 0.22304565277196392,
+    "brier": 0.22087647020816803,
+    "log_loss": 0.6332086324691772,
+    "ece": 0.34307563423961956
+  },
+  "bootstrap_95ci_calibrated": {
+    "roc_auc": [
+      0.650879292712419,
+      0.6807924516014534
+    ],
+    "pr_auc": [
+      0.2039168587983676,
+      0.2465059591057437
+    ],
+    "brier": [
+      0.09380221776664258,
+      0.10044798627495766
+    ],
+    "log_loss": [
+      0.3284679502248764,
+      0.3464365631341934
+    ],
+    "ece": [
+      0.0025571264505467282,
+      0.009758004497690077
+    ]
+  },
+  "bootstrap": {
+    "method": "patient-level cluster bootstrap",
+    "resamples": 500,
+    "seed": 42
+  },
+  "calibration_slope": 1.005747675895691,
+  "calibration_intercept": 0.027020299807190895,
+  "at_selected_threshold": {
+    "threshold": 0.15,
+    "tn": 14379,
+    "fp": 3391,
+    "fn": 1366,
+    "tp": 939,
+    "precision": 0.21685912240184757,
+    "recall": 0.40737527114967464,
+    "specificity": 0.8091727630838492,
+    "npv": 0.9132422991425849,
+    "f1": 0.2830444611906556,
+    "accuracy": 0.763038605230386,
+    "flagged_n": 4330,
+    "flagged_rate": 0.2156911581569116,
+    "lift_in_flagged": 1.8886971289445076
+  },
+  "data_quality": {
+    "raw_rows": 101766,
+    "excluded_death_related": 1652,
+    "excluded_by_category": {
+      "Expired": 1642,
+      "Expired at home. Medicaid only, hospice.": 8,
+      "Expired in a medical facility. Medicaid only, hospice.": 2
+    },
+    "eligible_rows": 100114,
+    "eligible_patients": 70439,
+    "patients_with_multiple_encounters": 16483,
+    "max_encounters_per_patient": 40,
+    "duplicate_encounter_ids": 0,
+    "readmission_rate_excluded_expired": 0.0,
+    "hospice_discharges_still_eligible": 771,
+    "hospice_readmission_rate": 0.055771725032425425,
+    "non_hospice_readmission_rate": 0.11388824577474005,
+    "hospice_in_test": 138,
+    "class_imbalance_ratio_neg_to_pos_train": 7.863340263340263,
+    "scale_pos_weight": 7.863340263340263
+  },
+  "shap": {
+    "sample_size": 2000,
+    "method": "xgboost native pred_contribs on sparse pipeline input",
+    "base_value_raw_margin": 0.01536798756569624,
+    "max_additivity_error": 1.2516975402832031e-06,
+    "explain_endpoint_fidelity": {
+      "rows_checked": 200,
+      "max_reconstruction_error": 1.1324882507324219e-06,
+      "max_difference_vs_batch_native_shap": 0.0,
+      "note": "Before the fix the explainer densified the input; see reports/shap_and_lab_encoding_fix.md for the pre-fix gap."
+    }
+  }
+}
