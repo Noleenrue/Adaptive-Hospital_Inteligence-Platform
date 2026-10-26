@@ -1,0 +1,113 @@
+{
+  "version": "corrected-v3",
+  "created_utc": "2026-10-22T10:30:05.727433+00:00",
+  "status": "promoted",
+  "files": {
+    "readmission_xgb_pipeline.joblib": "d94e71073ec3c291df86826b7115b7a283317a75b293ab4d22f07b6c328b64f4",
+    "platt_calibrator.joblib": "b7e80676d4967d9d9d6b73f4a160b8b1862029aa51d7a9a485a3af2325491faf"
+  },
+  "data": {
+    "source": "data\\processed\\clinical_features.csv",
+    "source_sha256": "66cd14a7d3d634e6182f63e78fd307bbbe9264c997de73439caf283b757cd28a",
+    "rows_before_filter": 101766,
+    "excluded_expired_encounters": 1652,
+    "eligible_encounters": 100114,
+    "eligible_patients": 70439
+  },
+  "split": {
+    "method": "GroupShuffleSplit on patient_id, test 20% then calibration 20% of development",
+    "random_state": 42,
+    "train_encounters": 63949,
+    "calibration_encounters": 16090,
+    "test_encounters": 20075,
+    "train_patients": 45080,
+    "calibration_patients": 11271,
+    "test_patients": 14088
+  },
+  "features": [
+    "age_midpoint",
+    "gender",
+    "race",
+    "admission_type",
+    "admission_source",
+    "discharge_disposition",
+    "length_of_stay",
+    "previous_inpatient_visits",
+    "previous_outpatient_visits",
+    "previous_emergency_visits",
+    "diagnosis_count",
+    "lab_procedure_count",
+    "procedure_count",
+    "medication_count",
+    "hba1c_result",
+    "glucose_result",
+    "insulin_status",
+    "diabetes_medication",
+    "primary_diagnosis_category",
+    "secondary_diagnosis_category",
+    "tertiary_diagnosis_category",
+    "total_previous_visits",
+    "has_previous_inpatient_visit"
+  ],
+  "input_mapping": "lab-not-measured-v1",
+  "input_mapping_detail": {
+    "columns": [
+      "hba1c_result",
+      "glucose_result"
+    ],
+    "label": "Not measured",
+    "blank_counts_before_filter": {
+      "hba1c_result": 84748,
+      "glucose_result": 96420
+    }
+  },
+  "model": {
+    "scale_pos_weight": 7.863340263340263,
+    "n_transformed_features": 138
+  },
+  "calibrator": {
+    "method": "platt",
+    "coef": 4.362039089202881,
+    "intercept": -4.194380760192871
+  },
+  "risk_policy": {
+    "low_risk_threshold": 0.1,
+    "high_risk_threshold": 0.15,
+    "intervention_threshold": 0.15
+  },
+  "test_metrics": {
+    "roc_auc": 0.6656012778367109,
+    "pr_auc": 0.223198116901063,
+    "brier": 0.09715404361486435,
+    "log_loss": 0.3374374508857727,
+    "mean_predicted": 0.11325641721487045,
+    "observed_rate": 0.11481942714819428,
+    "tiers": {
+      "Low": {
+        "n": 10568,
+        "share": 0.526425902864259,
+        "observed_rate": 0.07040121120363362,
+        "mean_predicted": 0.06782384216785431
+      },
+      "Moderate": {
+        "n": 5181,
+        "share": 0.2580821917808219,
+        "observed_rate": 0.12082609534838834,
+        "mean_predicted": 0.1223389059305191
+      },
+      "High": {
+        "n": 4326,
+        "share": 0.21549190535491905,
+        "observed_rate": 0.21613499768839575,
+        "mean_predicted": 0.21336621046066284
+      }
+    }
+  },
+  "environment": {
+    "python": "3.11.3",
+    "scikit_learn": "1.9.1",
+    "xgboost": "3.2.0",
+    "pandas": "3.0.5",
+    "numpy": "2.4.6"
+  }
+}
