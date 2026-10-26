@@ -69,6 +69,24 @@ These figures describe performance on one historical test partition, not prospec
 
 Dashboard screenshots will be added using synthetic demonstration records. The application includes Overview, Patient Risk Assessment, and Prediction History views.
 
+### Platform Overview
+![Platform Overview](docs/screenshots/overview.png)
+
+### Prediction Analytics
+![Prediction Analytics](docs/screenshots/prediction_analytics.png)
+
+### Patient Risk Assessment
+![Patient Risk Assessment](docs/screenshots/risk_assessment.png)
+
+### Explainable AI — SHAP
+![SHAP Explanation](docs/screenshots/shap_explanation.png)
+
+### Detailed Feature Contributions
+![Detailed SHAP Contributions](docs/screenshots/shap_details.png)
+
+### Prediction History
+![Prediction History](docs/screenshots/prediction_history.png)
+
 ---
 
 ## Local setup
