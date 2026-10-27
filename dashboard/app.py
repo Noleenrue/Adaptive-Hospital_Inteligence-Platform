@@ -4,6 +4,7 @@ import pandas as pd
 
 from api_client import (
     DashboardAPIError,
+    ServiceStartingError,
     get_health,
     get_history,
     post_explanation,
@@ -37,10 +38,20 @@ st.set_page_config(
 )
 
 
-def load_history():
+def show_service_starting(retry_key):
+    st.warning(
+        "The prediction service is starting; this may take about a minute."
+    )
+    if st.button("Retry", key=retry_key):
+        st.rerun()
+
+
+def load_history(retry_key):
     """Fetch saved predictions; show an error and return None on failure."""
     try:
         return prepare_history(get_history())
+    except ServiceStartingError:
+        show_service_starting(retry_key)
     except DashboardAPIError as exc:
         st.error(str(exc))
     except ValueError:
@@ -97,12 +108,14 @@ if page == "Overview":
             "in the dashboard."
         )
 
+    except ServiceStartingError:
+        show_service_starting("overview_health_retry")
     except DashboardAPIError as exc:
         st.error(str(exc))
 
     st.subheader("Prediction Summary")
 
-    history = load_history()
+    history = load_history("overview_history_retry")
 
     if history is not None and history.empty:
         st.info("No predictions saved yet. Run a patient assessment first.")
@@ -130,6 +143,21 @@ elif page == "Patient Risk Assessment":
         "Research risk categories are not validated clinical decision rules; "
         "Low does not mean zero risk. This model is not clinically validated."
     )
+
+    if st.session_state.get("retry_assessment_health"):
+        try:
+            get_health()
+        except ServiceStartingError:
+            show_service_starting("assessment_health_retry")
+        except DashboardAPIError as exc:
+            st.session_state.pop("retry_assessment_health", None)
+            st.error(str(exc))
+        else:
+            st.session_state.pop("retry_assessment_health", None)
+            st.success(
+                "The prediction service is available. You can submit "
+                "the assessment again."
+            )
 
     st.caption(
         "A successful submission creates a saved prediction record. The "
@@ -292,6 +320,9 @@ elif page == "Patient Risk Assessment":
                     "health": health,
                 }
 
+            except ServiceStartingError:
+                st.session_state["retry_assessment_health"] = True
+                show_service_starting("assessment_health_retry")
             except DashboardAPIError as exc:
                 st.error(str(exc))
                 if st.session_state.get("prediction_submission_locked"):
@@ -429,7 +460,7 @@ elif page == "Prediction History":
         "100 most recent records."
     )
 
-    history = load_history()
+    history = load_history("history_retry")
 
     if history is None:
         st.stop()

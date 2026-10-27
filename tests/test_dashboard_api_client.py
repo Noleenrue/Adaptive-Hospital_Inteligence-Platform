@@ -10,6 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "dashboard"))
 import api_client  # noqa: E402
 from api_client import (  # noqa: E402
     DashboardAPIError,
+    ServiceStartingError,
     get_health,
     get_history,
     post_prediction,
@@ -77,7 +78,7 @@ def test_health_uses_api_reported_model_identity(monkeypatch):
     assert result["model_version"] == "corrected-v3"
     assert result["artifact_id"] == "sha256:21438015f642839e"
     get.assert_called_once_with(
-        f"{api_client.API_URL}/health", timeout=10
+        f"{api_client.API_URL}/health", timeout=(5, 20)
     )
 
 
@@ -103,6 +104,7 @@ def test_connection_error_is_clear_and_does_not_expose_exception(
     monkeypatch,
 ):
     secret_detail = "secret-path-and-patient-data"
+    sleep = Mock()
     monkeypatch.setattr(
         api_client, "API_URL", "http://user:api-secret@localhost:8001"
     )
@@ -111,13 +113,63 @@ def test_connection_error_is_clear_and_does_not_expose_exception(
         "get",
         Mock(side_effect=requests.ConnectionError(secret_detail)),
     )
+    monkeypatch.setattr(api_client.time, "sleep", sleep)
 
     with pytest.raises(DashboardAPIError) as exc:
         get_health()
 
-    assert "configured API" in str(exc.value)
+    assert str(exc.value) == api_client.SERVICE_STARTING_MESSAGE
     assert "api-secret" not in str(exc.value)
     assert secret_detail not in str(exc.value)
+    assert sleep.call_count == 2
+
+
+def test_health_retries_transient_connection_errors_with_backoff(monkeypatch):
+    get = Mock(
+        side_effect=[
+            requests.ConnectionError("temporary network failure"),
+            _response(_health()),
+        ]
+    )
+    sleep = Mock()
+    monkeypatch.setattr(api_client.requests, "get", get)
+    monkeypatch.setattr(api_client.time, "sleep", sleep)
+
+    assert get_health()["status"] == "healthy"
+
+    assert get.call_count == 2
+    assert all(call.kwargs["timeout"] == (5, 20) for call in get.call_args_list)
+    sleep.assert_called_once_with(1)
+
+
+def test_history_transient_failure_has_friendly_startup_error(monkeypatch):
+    get = Mock(side_effect=requests.Timeout("connection timed out"))
+    sleep = Mock()
+    monkeypatch.setattr(api_client.requests, "get", get)
+    monkeypatch.setattr(api_client.time, "sleep", sleep)
+
+    with pytest.raises(ServiceStartingError) as exc:
+        get_history()
+
+    assert str(exc.value) == api_client.SERVICE_STARTING_MESSAGE
+    assert get.call_count == 3
+    assert all(call.kwargs["timeout"] == (5, 20) for call in get.call_args_list)
+    assert [call.args[0] for call in sleep.call_args_list] == [1, 2]
+
+
+def test_prediction_post_timeout_is_never_retried(monkeypatch):
+    post = Mock(side_effect=requests.Timeout("request timed out"))
+    monkeypatch.setattr(api_client.requests, "post", post)
+
+    with pytest.raises(DashboardAPIError) as exc:
+        post_prediction(_patient())
+
+    assert "timed out" in str(exc.value)
+    post.assert_called_once_with(
+        f"{api_client.API_URL}/predict",
+        timeout=30,
+        json=_patient(),
+    )
 
 
 def test_invalid_input_response_does_not_expose_server_body(monkeypatch):
@@ -145,7 +197,7 @@ def test_history_uses_get_only_and_does_not_submit_prediction(monkeypatch):
     assert get_history() == {"total": 0, "predictions": []}
     get.assert_called_once_with(
         f"{api_client.API_URL}/predictions",
-        timeout=10,
+        timeout=(5, 20),
         params={"limit": 100},
     )
     post.assert_not_called()

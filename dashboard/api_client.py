@@ -1,15 +1,25 @@
 """HTTP helpers for the Streamlit dashboard's FastAPI backend."""
 
 import os
+import time
 
 import requests
 
 DEFAULT_API_URL = "http://127.0.0.1:8001"
 API_URL = (os.environ.get("API_URL") or DEFAULT_API_URL).rstrip("/")
+GET_TIMEOUT = (5, 20)
+GET_RETRY_BACKOFF = (1, 2)
+SERVICE_STARTING_MESSAGE = (
+    "The prediction service is starting; this may take about a minute."
+)
 
 
 class DashboardAPIError(Exception):
     """A safe, user-facing error for dashboard API requests."""
+
+
+class ServiceStartingError(DashboardAPIError):
+    """A transient GET request failed after its bounded retries."""
 
 
 def _request_error(exc, operation):
@@ -40,22 +50,46 @@ def _request_error(exc, operation):
     )
 
 
-def _request(method, path, operation, *, timeout, **kwargs):
-    try:
-        response = method(f"{API_URL}{path}", timeout=timeout, **kwargs)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as exc:
-        raise _request_error(exc, operation) from exc
-    except ValueError as exc:
-        raise DashboardAPIError(
-            f"The API returned an invalid response for {operation.lower()}."
-        ) from exc
+def _is_transient_error(exc):
+    if isinstance(exc, (requests.ConnectionError, requests.Timeout)):
+        return True
+    return (
+        isinstance(exc, requests.HTTPError)
+        and exc.response is not None
+        and exc.response.status_code in {502, 503, 504}
+    )
+
+
+def _request(
+    method, path, operation, *, timeout, retry_transient=False, **kwargs
+):
+    attempts = len(GET_RETRY_BACKOFF) + 1 if retry_transient else 1
+    for attempt in range(attempts):
+        try:
+            response = method(f"{API_URL}{path}", timeout=timeout, **kwargs)
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as exc:
+            if retry_transient and _is_transient_error(exc):
+                if attempt < len(GET_RETRY_BACKOFF):
+                    time.sleep(GET_RETRY_BACKOFF[attempt])
+                    continue
+                raise ServiceStartingError(SERVICE_STARTING_MESSAGE) from exc
+            raise _request_error(exc, operation) from exc
+        except ValueError as exc:
+            raise DashboardAPIError(
+                f"The API returned an invalid response for "
+                f"{operation.lower()}."
+            ) from exc
 
 
 def get_health():
     payload = _request(
-        requests.get, "/health", "API health check", timeout=10
+        requests.get,
+        "/health",
+        "API health check",
+        timeout=GET_TIMEOUT,
+        retry_transient=True,
     )
     if not isinstance(payload, dict):
         raise DashboardAPIError("The API health response is invalid.")
@@ -83,7 +117,8 @@ def get_history():
         requests.get,
         "/predictions",
         "Prediction history retrieval",
-        timeout=10,
+        timeout=GET_TIMEOUT,
+        retry_transient=True,
         params={"limit": 100},
     )
 
