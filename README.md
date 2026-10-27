@@ -1,6 +1,10 @@
 # Adaptive Hospital Intelligence Platform
 
-**An end-to-end machine learning application for estimating 30-day hospital readmission risk at discharge.**
+**A deployed, end-to-end data science portfolio research prototype for estimating 30-day hospital readmission risk at discharge.**
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-FF4B4B?logo=streamlit&logoColor=white)](https://adaptive-hospitalinteligence-platform-cqx99uqjrwebu2j9j7bpys.streamlit.app/)
+[![API Documentation](https://img.shields.io/badge/API-Documentation-009688?logo=fastapi&logoColor=white)](https://adaptive-hospital-api.onrender.com/docs)
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?logo=github&logoColor=white)](https://github.com/Noleenrue/Adaptive-Hospital_Inteligence-Platform)
 
 ![Python](https://img.shields.io/badge/Python-3.11-blue)
 ![XGBoost](https://img.shields.io/badge/ML-XGBoost-orange)
@@ -9,24 +13,65 @@
 ![PostgreSQL](https://img.shields.io/badge/Database-PostgreSQL-336791)
 ![Status](https://img.shields.io/badge/Status-Research%20Prototype-yellow)
 
+> **Research prototype — not clinically validated.** This project estimates 30-day hospital readmission risk at discharge. It is not a medical device and must not be used to guide real patient care or other medical decisions.
+
+## Contents
+
+- [Project overview](#project-overview)
+- [Live deployment](#live-deployment)
+- [Technical architecture](#technical-architecture)
+- [Implemented features](#implemented-features)
+- [Model performance](#model-performance)
+- [Technology stack](#technology-stack)
+- [Dashboard screenshots](#dashboard-screenshots)
+- [Local setup](#local-setup)
+- [Limitations and responsible use](#limitations-and-responsible-use)
+- [Documentation](#documentation)
+- [Dataset attribution](#dataset-attribution)
+
 ## Project overview
 
-Hospital readmissions are a significant challenge for healthcare systems. This project demonstrates how machine learning, explainable AI, API development, and database integration can be combined into an interactive clinical-risk research prototype.
+The Adaptive Hospital Intelligence Platform demonstrates an end-to-end machine learning application: historical encounter data is used to estimate the probability of readmission within 30 days of hospital discharge, and the resulting service is exposed through a FastAPI backend and Streamlit dashboard. The project brings together model serving, probability calibration, explainability, persistent prediction history, and a user-facing interface in a deployable portfolio prototype.
 
-The platform processes historical hospital encounter data, estimates the probability of readmission within 30 days, explains model predictions using SHAP, and presents results through an interactive Streamlit dashboard.
+The model is built around the UCI Diabetes 130-US Hospitals dataset. Its intended scoring point is **hospital discharge**, not admission; some input information is only available at or near discharge. The application is intended for demonstration and engineering evaluation, not clinical use.
 
-**Important:** This is a research and portfolio demonstration, not a clinically validated medical device. Predictions must not be used for patient care or clinical decisions.
+## Live deployment
 
-## Key features
+| Service | Hosting | Link |
+|---|---|---|
+| Streamlit dashboard | Streamlit Community Cloud | [Open the live application](https://adaptive-hospitalinteligence-platform-cqx99uqjrwebu2j9j7bpys.streamlit.app/) |
+| FastAPI backend | Render | [Open the interactive API documentation](https://adaptive-hospital-api.onrender.com/docs) |
+| Source code | GitHub | [View the repository](https://github.com/Noleenrue/Adaptive-Hospital_Inteligence-Platform) |
 
-- **Readmission risk prediction:** XGBoost model trained and evaluated using patient-disjoint data partitions.
-- **Probability calibration:** Platt scaling to improve probability reliability.
-- **Explainable AI:** SHAP contributions help users explore the factors influencing predictions.
-- **Interactive dashboard:** Streamlit interface for risk assessment and prediction history.
-- **REST API:** FastAPI endpoints for prediction, explanation, health checks, and history retrieval.
-- **Database integration:** PostgreSQL stores prediction submissions for later review.
-- **Data validation:** Preprocessing and input validation support consistent feature handling.
-- **Testing and evaluation:** Automated tests and documented held-out performance metrics.
+Prediction history is persisted by the API in PostgreSQL. The repository documentation describes `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD` configuration, with local development defaults; it does not identify a hosted PostgreSQL provider. No database provider or connection details are assumed or published here.
+
+## Technical architecture
+
+```mermaid
+flowchart LR
+    U[User] --> UI[Streamlit Dashboard]
+    UI -->|HTTP requests| API[FastAPI Backend]
+    API -->|prediction request| XGB[XGBoost Model Pipeline]
+    XGB -->|raw probability| CAL[Platt Probability Calibration]
+    CAL -->|raw and calibrated scores| API
+    API -->|POST /explain, separate request| SHAP[SHAP Explanation]
+    API -->|POST /predict writes| PG[(PostgreSQL Prediction History)]
+    PG -->|history GET requests| API
+    API --> UI
+    UI -->|CSV export from displayed history| CSV[Downloaded CSV]
+```
+
+For assessment, the dashboard sends input to FastAPI; the model pipeline produces a raw probability and the Platt calibrator produces the calibrated estimate. The API's separate explanation endpoint computes SHAP contributions for the input; these explain the model's raw margin and are not calibrated-probability percentage points. A successful `POST /predict` persists the prediction record to PostgreSQL, while history endpoints read saved records. CSV export is generated by the dashboard from history data. SHAP is not a database write step.
+
+## Implemented features
+
+- **Patient risk assessment:** Streamlit form submits encounter features to the prediction API.
+- **Calibrated predictions:** XGBoost output is accompanied by a Platt-scaled probability and research risk tier.
+- **SHAP explanations:** Separate explanation request provides feature contributions for the model's raw margin.
+- **Prediction history:** PostgreSQL-backed records are retrieved through the API and presented in the dashboard.
+- **PostgreSQL persistence:** Prediction submissions are stored; history retrieval is read-only.
+- **CSV export:** Dashboard users can download the currently filtered prediction history.
+- **API-backed dashboard:** FastAPI exposes health/model identity, prediction, explanation, and history endpoints.
 
 ## Model performance
 
@@ -57,6 +102,19 @@ These figures describe performance on one historical test partition, not prospec
 | Testing | pytest |
 | Version control | Git, GitHub |
 
+## Dashboard screenshots
+
+The following screenshots are present in [`docs/screenshots/`](docs/screenshots/):
+
+| Dashboard view | Preview |
+|---|---|
+| Platform overview | ![Platform overview](docs/screenshots/overview.png) |
+| Prediction analytics | ![Prediction analytics](docs/screenshots/prediction_analytics.png) |
+| Patient risk assessment | ![Patient risk assessment](docs/screenshots/risk_assessment.png) |
+| SHAP explanation | ![SHAP explanation](docs/screenshots/shap_explanation.png) |
+| Detailed feature contributions | ![Detailed SHAP contributions](docs/screenshots/shap_details.png) |
+| Prediction history | ![Prediction history](docs/screenshots/prediction_history.png) |
+
 ## Explore the project
 
 - [System architecture](docs/architecture.md)
@@ -64,28 +122,6 @@ These figures describe performance on one historical test partition, not prospec
 - [Model evaluation report](reports/corrected_v3_model_evaluation_report.md)
 - [Interview demonstration guide](docs/interview_demo.md)
 - [Portfolio presentation](docs/portfolio_presentation.md)
-
-## Dashboard preview
-
-Dashboard screenshots will be added using synthetic demonstration records. The application includes Overview, Patient Risk Assessment, and Prediction History views.
-
-### Platform Overview
-![Platform Overview](docs/screenshots/overview.png)
-
-### Prediction Analytics
-![Prediction Analytics](docs/screenshots/prediction_analytics.png)
-
-### Patient Risk Assessment
-![Patient Risk Assessment](docs/screenshots/risk_assessment.png)
-
-### Explainable AI — SHAP
-![SHAP Explanation](docs/screenshots/shap_explanation.png)
-
-### Detailed Feature Contributions
-![Detailed SHAP Contributions](docs/screenshots/shap_details.png)
-
-### Prediction History
-![Prediction History](docs/screenshots/prediction_history.png)
 
 ---
 
